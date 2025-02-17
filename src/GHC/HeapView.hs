@@ -1,6 +1,9 @@
 {-# LANGUAGE MagicHash, UnboxedTuples, CPP, ForeignFunctionInterface, GHCForeignImportPrim, UnliftedFFITypes, BangPatterns, RecordWildCards, DeriveFunctor, DeriveFoldable, DeriveTraversable, PatternGuards #-}
 {-# LANGUAGE StandaloneDeriving #-}
 {-# OPTIONS_GHC -Wno-orphans #-}
+{-# OPTIONS_GHC -Wno-x-partial #-}
+{-# OPTIONS_GHC -Wno-unused-record-wildcards #-}
+
 {-|
 Module      :  GHC.HeapView
 Copyright   :  (c) 2012-2019 Joachim Breitner
@@ -261,6 +264,16 @@ ppClosure showBox prec c = case c of
         ["[", intercalate ", " (shorten (map (showBox 10) mccPayload)),"]"]
     WeakClosure {..} ->
         "_weak"
+#endif
+#if MIN_VERSION_ghc_heap(9,10,1)
+    IOPortClosure _ _ _ _ ->
+        "_ioPort"
+    TSOClosure _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ ->
+        "_tso"
+    StackClosure _ _ _ _ ->
+        "_stack"
+    UnknownTypeWordSizedPrimitive _ ->
+        "_unknownTypeWordSizedPrimitive"
 #endif
   where
     app [a] = a  ++ "()"
